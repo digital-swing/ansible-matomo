@@ -1,55 +1,11 @@
 ---
 # Web server configurator
-
-- name: Fetch the (possibly empty) list of PHP socket files
-  find:
-    paths: /var/run/php
-    patterns: "*.sock"
-    file_type: any
-  register: matomo_php_socket_files
-
-- name: Fetch the path of the first found socket file
-  set_fact:
-    matomo_php_socket_file_path: "{{ matomo_php_socket_files.files | sort(attribute='ctime', reverse=True) | map(attribute='path') | list | first }}"
-  when: matomo_php_socket_files.matched > 0
-
-- name: Fetch info on the found socket file
-  ansible.builtin.stat:
-    path: "{{ matomo_php_socket_file_path }}"
-  register: matomo_php_socket_files_first
-  when: matomo_php_socket_files.matched > 0
-
-- name: Assume the PHP socket file is not a symbolic link
-  set_fact:
-    matomo_php_socket_file_is_link: false
-  when: matomo_php_socket_files.matched > 0
-
-- name: Determine if the socket file is a symbolic link
-  set_fact:
-    matomo_php_socket_file_is_link: true
-  when:
-    - matomo_php_socket_files.matched > 0
-    - matomo_php_socket_files_first.stat.islnk is defined
-    - matomo_php_socket_files_first.stat.islnk
-
-- name: Determine if the symbolic link points to a real file
-  ansible.builtin.stat:
-    path: "{{ matomo_php_socket_files_first.stat.lnk_source }}"
-  register: matomo_php_socket_file_link_target
-  when: (matomo_php_socket_files.matched > 0) and matomo_php_socket_file_is_link
-
-- name: Set the PHP socket file if it's a symbolic link and the target exists
-  set_fact:
-    matomo_php_socket_file: "{{ matomo_php_socket_files_first.stat.lnk_source }}"
-  when:
-    - matomo_php_socket_files.matched > 0
-    - matomo_php_socket_file_is_link
-    - matomo_php_socket_file_link_target.stat.exists
-
-- name: Set the PHP socket file if it's a regular file
-  set_fact:
-    matomo_php_socket_file: "{{ matomo_php_socket_file_path }}"
-  when: (matomo_php_socket_files.matched > 0) and (not matomo_php_socket_file_is_link)
+- name: Create matomo php-fpm configuration file
+  template:
+    src: php-fpm.conf.j2
+    dest: /etc/php/{{ php_version }}/fpm/pool.d/matomo.conf
+    mode: '0644'
+  notify: reload php-fpm
 
 - name: Inject the Matomo site's Nginx configuration
   template:
@@ -59,7 +15,7 @@
     group: "root"
     mode: "preserve"
     force: true
-  notify: "(Handler: All OSs) Reload NGINX"
+  notify: reload nginx
   become: true
 
 - name: Enable the site
@@ -67,5 +23,5 @@
     src: "{{ matomo_web_config_file['regular'] }}"
     dest: "{{ matomo_web_config_file['link'] }}"
     state: link
-  notify: "(Handler: All OSs) Reload NGINX"
+  notify: reload nginx
   become: true
