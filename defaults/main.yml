@@ -12,17 +12,15 @@ matomo_timezone: "America/Toronto"
 matomo_https_certificate_admin_email: "tech@example.com"
 
 # Software sources
-matomo_debian_repository_domain: "debian.matomo.org"
-matomo_debian_repository_key_id: "1FD752571FE36FF23F78F91B81E2E78B66FED89E"
-matomo_debian_repository_key_url: "http://{{ matomo_debian_repository_domain }}/repository.gpg"
-matomo_debian_repository_url: "https://{{ matomo_debian_repository_domain }}/"
-matomo_debian_automatic_upgrades: "true"
+matomo_source: "https://builds.matomo.org/matomo.zip"
 
 # Paths
 matomo_path:
-  docroot: "/usr/share/matomo"
-  config: "/etc/matomo"
+  docroot: "{{ www_root }}/matomo"
+  config: "{{ www_root }}/matomo/config"
   temporary: "/tmp"
+matomo_owner: "www-data"
+matomo_group: "www-data"
 matomo_geoip_data_month: "{{ ansible_date_time.year }}-{{ ansible_date_time.month }}"
 matomo_geoip_data_filename: "dbip-city-lite-{{ matomo_geoip_data_month }}.mmdb"
 matomo_geoip_data_compressed: "{{ matomo_geoip_data_filename }}.gz"
@@ -30,7 +28,7 @@ matomo_geoip_data_url: "https://download.db-ip.com/free/{{ matomo_geoip_data_com
 
 # Web configuration
 matomo_configure_web_server: true
-matomo_web_config_dir_main: "/etc/nginx"
+matomo_web_config_dir_main: "{{ nginx_path }}"
 matomo_web_config_dir:
   available: "{{ matomo_web_config_dir_main }}/sites-available"
   enabled: "{{ matomo_web_config_dir_main }}/sites-enabled"
