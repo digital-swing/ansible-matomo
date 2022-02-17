@@ -1,5 +1,5 @@
 ---
-# tasks file for ansible-role-matomo
+# tasks file for trellis-matomo
 
 - name: Configure the Web server
   import_tasks: configure-web-server.yml

@@ -1,12 +1,12 @@
 galaxy_info:
   role_name: matomo
-  author: Colan Schwartz
-  description: Installs Matomo for Web site analytics.
-  company: Consensus Enterprises
+  author: Lucas Demea
+  description: Installs Matomo on trellis managed server.
+  company: Digital Swing
 
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value
-  issue_tracker_url: https://gitlab.com/consensus.enterprises/ansible-roles/ansible-role-matomo/-/boards
+  issue_tracker_url: https://github.com/digital-swing/trellis-matomo/issues
 
   # Some suggested licenses:
   # - BSD (default)
@@ -54,6 +54,8 @@ galaxy_info:
     - analytics
     - web
     - php
+    - trellis
+
 dependencies:
   - geerlingguy.certbot
   # List your role dependencies here, one per line. Be sure to remove the '[]' above,
