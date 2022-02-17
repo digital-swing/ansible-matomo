@@ -1,0 +1,44 @@
+---
+- name: Verify that "{{ matomo_path.docroot }}" folder exists
+  file:
+    path: "{{ matomo_path.docroot }}"
+    mode: "0755"
+    state: directory
+  become: true
+
+- name: Verify that "{{ matomo_path.docroot }}" tmp folder exists
+  file:
+    path: "{{ matomo_path.temporary }}/matomo"
+    mode: "0755"
+    state: directory
+  become: true
+    
+- name: Download and unarchive matomo
+  unarchive:
+    src: "{{ matomo_source }}"
+    dest: "{{ matomo_path.temporary }}/matomo"
+    remote_src: yes
+  become: true
+
+- name: Copy matomo files to docroot
+  copy:
+    src: "{{ matomo_path.temporary }}/matomo/matomo/"
+    dest: "{{ matomo_path.docroot }}"
+    remote_src: yes
+  become: true
+
+- name: Delete matomo tmp folder
+  file:
+    path: "{{ matomo_path.temporary }}/matomo"
+    state: absent
+  become: true
+
+- name: Setup matomo ownership and permissions
+  file:
+    path: "{{ matomo_path.docroot }}"
+    state: directory
+    recurse: yes
+    owner: "{{ matomo_owner }}"
+    group: "{{ matomo_group }}"
+    mode: '0755'
+  become: true
